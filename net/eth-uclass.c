@@ -13,9 +13,9 @@
 #include <dm/uclass-internal.h>
 #include <net/pcap.h>
 #include "eth_internal.h"
-
+#include "i2c_eeprom_myir.h"
 DECLARE_GLOBAL_DATA_PTR;
-
+static int has_been_read = 0;
 /**
  * struct eth_device_priv - private structure for each Ethernet device
  *
@@ -490,7 +490,7 @@ static int eth_post_probe(struct udevice *dev)
 	struct eth_device_priv *priv = dev->uclass_priv;
 	struct eth_pdata *pdata = dev->platdata;
 	unsigned char env_enetaddr[ARP_HLEN];
-
+	int ret;
 #if defined(CONFIG_NEEDS_MANUAL_RELOC)
 	struct eth_ops *ops = eth_get_ops(dev);
 	static int reloc_done;
@@ -559,6 +559,14 @@ static int eth_post_probe(struct udevice *dev)
 	}
 
 	eth_write_hwaddr(dev);
+	if (!has_been_read)
+	{
+	    ret = read_eeprom();
+	    if(ret)
+	      printf("Error %d reading EEPROM content!\n",ret);
+	    has_been_read = (ret == 0) ? 1 : 0;
+	    show_eeprom();
+	}
 
 	return 0;
 }
