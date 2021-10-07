@@ -65,7 +65,7 @@ len=sizeof(eeprom.sn);
     printf(">>>MAC0=%02x:%02x:%02x:%02x:%02x:%02x\n",
            p[0], p[1], p[2], p[3], p[4], p[5]);
 
-    eth_env_set_enetaddr("eth0ddr", p);
+    eth_env_set_enetaddr("ethaddr", p);
     m = eeprom.mac1;
     if (!is_valid_ethaddr(m)) {
         printf("Not valid MAC1 address in eeprom!\n");

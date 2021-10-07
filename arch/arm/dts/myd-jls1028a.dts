@@ -11,7 +11,7 @@
 #include "fsl-ls1028a.dtsi"
 #include <dt-bindings/gpio/gpio.h>
 / {
-	model = "NXP Layerscape 1028a RDB Board";
+	model = "MYIR MYD-JLS1028 Development Board";
 	compatible = "fsl,ls1028a-rdb", "fsl,ls1028a";
 	aliases {
 		spi0 = &fspi;
