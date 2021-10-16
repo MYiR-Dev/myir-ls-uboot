@@ -292,6 +292,20 @@ static void enetc_config_phy(struct udevice *dev)
 
 	phy_config(priv->phy);
 }
+#ifdef CONFIG_DM_GPIO
+/* enetc GPIO reset */
+static void myir_gpio_reset(struct enetc_priv *priv)
+{
+	debug("ecetc_gpio_reset: enetc_gpio_reset(dev)\n");
+	if (dm_gpio_is_valid(&priv->phy_reset_gpio)) {
+		dm_gpio_set_value(&priv->phy_reset_gpio, 0);
+		mdelay(priv->reset_delay);
+		dm_gpio_set_value(&priv->phy_reset_gpio, 1);
+		if (priv->reset_post_delay)
+			mdelay(priv->reset_post_delay);
+	}
+}
+#endif
 
 /*
  * Probe ENETC driver:
@@ -318,6 +332,9 @@ static int enetc_probe(struct udevice *dev)
 
 		return -ENOMEM;
 	}
+#ifdef CONFIG_DM_GPIO
+      myir_gpio_reset(priv);
+#endif
 
 	/* initialize register */
 	priv->regs_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0, 0);
@@ -656,6 +673,38 @@ static int enetc_recv(struct udevice *dev, int flags, uchar **packetp)
 
 	return len;
 }
+static int enetc_ofdata_to_platdata(struct udevice *dev)
+{
+	int ret = 0;
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+	//struct fec_priv *priv = dev_get_priv(dev);
+    struct enetc_priv *priv = dev_get_priv(dev);
+
+#ifdef CONFIG_DM_GPIO
+	ret = gpio_request_by_name(dev, "phy-reset-gpios", 0,
+				   &priv->phy_reset_gpio, GPIOD_IS_OUT);
+	if (ret < 0)
+		return 0; /* property is optional, don't return error! */
+
+	priv->reset_delay = dev_read_u32_default(dev, "phy-reset-duration", 1);
+	if (priv->reset_delay > 1000) {
+		printf("FEC MXC: phy reset duration should be <= 1000ms\n");
+		/* property value wrong, use default value */
+		priv->reset_delay = 1;
+	}
+
+	priv->reset_post_delay = dev_read_u32_default(dev,
+						      "phy-reset-post-delay",
+						      0);
+	if (priv->reset_post_delay > 1000) {
+		printf("FEC MXC: phy reset post delay should be <= 1000ms\n");
+		/* property value wrong, use default value */
+		priv->reset_post_delay = 0;
+	}
+#endif
+
+	return 0;
+}
 
 static const struct eth_ops enetc_ops = {
 	.start	= enetc_start,
@@ -672,6 +721,7 @@ U_BOOT_DRIVER(eth_enetc) = {
 	.probe	= enetc_probe,
 	.remove = enetc_remove,
 	.ops	= &enetc_ops,
+	.ofdata_to_platdata = enetc_ofdata_to_platdata,
 	.priv_auto_alloc_size = sizeof(struct enetc_priv),
 	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
 };
