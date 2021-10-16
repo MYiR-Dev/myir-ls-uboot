@@ -93,9 +93,9 @@
 	status = "okay";
 	phy-mode = "sgmii";
 	phy-handle = <&rdb_phy0>;
-	reset_delay=<10>;
-	phy-reset-duration = <100>;
-	phy-reset-gpios = <&gpio2 1 GPIO_ACTIVE_HIGH>;
+	phy-reset-duration=<10>;
+	phy-reset-post-delay = <30>;
+	phy-reset-gpios = <&gpio2 1 GPIO_ACTIVE_LOW>;
 	
 };
 

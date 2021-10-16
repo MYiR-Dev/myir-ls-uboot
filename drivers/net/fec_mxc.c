@@ -1315,9 +1315,9 @@ static void fec_gpio_reset(struct fec_priv *priv)
 {
 	debug("fec_gpio_reset: fec_gpio_reset(dev)\n");
 	if (dm_gpio_is_valid(&priv->phy_reset_gpio)) {
-		dm_gpio_set_value(&priv->phy_reset_gpio, 1);
+		//dm_gpio_set_value(&priv->phy_reset_gpio, 1);
 		mdelay(priv->reset_delay);
-		dm_gpio_set_value(&priv->phy_reset_gpio, 0);
+		dm_gpio_set_value(&priv->phy_reset_gpio, 1);
 		if (priv->reset_post_delay)
 			mdelay(priv->reset_post_delay);
 	}
