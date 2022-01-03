@@ -112,11 +112,9 @@
 	"kernelhdr_addr_sd=0x3000\0"		\
 	"kernelhdr_size_sd=0x20\0"		\
 	"console=ttyS0,115200\0"                \
-	"devnum=1\0"                              \
 	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"	\
 	BOOTENV					\
 	JAILHOUSE_ENV \
-	"boot_scripts=mydjls1028_boot.scr\0"    \
 	"boot_script_hdr=hdr_ls1028ardb_bs.out\0"	\
 	"scan_dev_for_boot_part="               \
 		"part list ${devtype} ${devnum} devplist; "   \
